@@ -59,12 +59,6 @@ body:before {
 .left img {
     width: 95%;
     max-width: 550px;
-    animation: floatLogo 4s ease-in-out infinite;
-}
-
-@keyframes floatLogo {
-    0%, 100% { transform: translateY(0); }
-    50%       { transform: translateY(-15px); }
 }
 
 .right {
