@@ -128,47 +128,6 @@
                         </div>
                     </div>
 
-                    <!-- Two-Factor Authentication -->
-                    <div class="card mb-4">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h6 class="mb-0"><i class="fas fa-shield-alt me-2 text-accent"></i>Two-Factor Authentication (2FA)</h6>
-                            @if($user->two_factor_enabled)
-                                <span class="badge bg-success px-3 py-2"><i class="fas fa-check-circle me-1"></i>Enabled</span>
-                            @else
-                                <span class="badge bg-secondary px-3 py-2"><i class="fas fa-times-circle me-1"></i>Disabled</span>
-                            @endif
-                        </div>
-                        <div class="card-body">
-                            <div class="row align-items-center">
-                                <div class="col-md-8">
-                                    @if($user->two_factor_enabled)
-                                        <p class="mb-1 fw-semibold text-success"><i class="fas fa-shield-alt me-1"></i>2FA is currently active on your account.</p>
-                                        <p class="text-muted small mb-0">Each time you log in from a new or unrecognized device, a 6-digit verification code will be sent to <strong>{{ $user->email }}</strong>.</p>
-                                    @else
-                                        <p class="mb-1 fw-semibold"><i class="fas fa-info-circle me-1 text-accent"></i>Strengthen your account security.</p>
-                                        <p class="text-muted small mb-0">When enabled, a 6-digit code will be sent to <strong>{{ $user->email }}</strong> whenever you log in from a new device.</p>
-                                    @endif
-                                </div>
-                                <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                                    <form action="{{ route('profile.toggle-2fa') }}" method="POST">
-                                        @csrf
-                                        @if($user->two_factor_enabled)
-                                            <button type="submit" class="btn btn-warning px-4"
-                                                onclick="return confirm('Are you sure you want to disable 2FA? Your account will be less secure.')">
-                                                <i class="fas fa-shield-alt me-2"></i>Disable 2FA
-                                            </button>
-                                        @else
-                                            <button type="submit" class="btn btn-success px-4"
-                                                onclick="return confirm('Enable 2FA? A verification code will be sent to your email on each new device login.')">
-                                                <i class="fas fa-shield-alt me-2"></i>Enable 2FA
-                                            </button>
-                                        @endif
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- Change Password -->
                     <div class="card mb-4">
                         <div class="card-header">
@@ -214,6 +173,47 @@
                                     <label class="form-label">Confirm Password</label>
                                     <input type="password" class="form-control" 
                                            name="password_confirmation" placeholder="Confirm new password">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Two-Factor Authentication -->
+                    <div class="card mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0"><i class="fas fa-shield-alt me-2 text-accent"></i>Two-Factor Authentication (2FA)</h6>
+                            @if($user->two_factor_enabled)
+                                <span class="badge bg-success px-3 py-2"><i class="fas fa-check-circle me-1"></i>Enabled</span>
+                            @else
+                                <span class="badge bg-secondary px-3 py-2"><i class="fas fa-times-circle me-1"></i>Disabled</span>
+                            @endif
+                        </div>
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    @if($user->two_factor_enabled)
+                                        <p class="mb-1 fw-semibold text-success"><i class="fas fa-shield-alt me-1"></i>2FA is currently active on your account.</p>
+                                        <p class="text-muted small mb-0">Each time you log in from a new or unrecognized device, a 6-digit verification code will be sent to <strong>{{ $user->email }}</strong>.</p>
+                                    @else
+                                        <p class="mb-1 fw-semibold"><i class="fas fa-info-circle me-1 text-accent"></i>Strengthen your account security.</p>
+                                        <p class="text-muted small mb-0">When enabled, a 6-digit code will be sent to <strong>{{ $user->email }}</strong> whenever you log in from a new device.</p>
+                                    @endif
+                                </div>
+                                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                                    <form action="{{ route('profile.toggle-2fa') }}" method="POST">
+                                        @csrf
+                                        @if($user->two_factor_enabled)
+                                            <button type="submit" class="btn btn-warning px-4"
+                                                onclick="return confirm('Are you sure you want to disable 2FA? Your account will be less secure.')">
+                                                <i class="fas fa-shield-alt me-2"></i>Disable 2FA
+                                            </button>
+                                        @else
+                                            <button type="submit" class="btn btn-success px-4"
+                                                onclick="return confirm('Enable 2FA? A verification code will be sent to your email on each new device login.')">
+                                                <i class="fas fa-shield-alt me-2"></i>Enable 2FA
+                                            </button>
+                                        @endif
+                                    </form>
                                 </div>
                             </div>
                         </div>
