@@ -128,7 +128,7 @@
                                     <input type="text" name="customer_name" id="customerName" class="form-control" placeholder="Customer Name">
                                 </div>
                                 <div class="col-12">
-                                    <input type="text" name="customer_phone" id="customerPhone" class="form-control" placeholder="Phone Number">
+                                    <input type="text" name="customer_phone" id="customerPhone" class="form-control" placeholder="Phone Number" inputmode="numeric" pattern="[0-9]*">
                                 </div>
                                 <div class="col-12">
                                     <input type="text" name="customer_address" id="customerAddress" class="form-control" placeholder="Address (Optional)">
@@ -183,7 +183,7 @@
                                     <div class="row g-2 mb-2" id="cashPaymentFields">
                                         <div class="col-6">
                                             <label class="form-label small mb-1">Amount Paid</label>
-                                            <input type="number" name="amount_paid" id="amountPaid" class="form-control" placeholder="0.00" min="0" step="0.01" required>
+                                            <input type="number" name="amount_paid" id="amountPaid" class="form-control" placeholder="0.00" min="0" step="0.01" inputmode="decimal" required>
                                         </div>
                                         <div class="col-6">
                                             <label class="form-label small mb-1">Change</label>
@@ -325,7 +325,7 @@
         <div class="d-flex justify-content-between align-items-center">
             <div class="quantity-controls" style="{quantity_controls_style}">
                 <button type="button" class="quantity-btn decrease-qty" style="{qty_btn_style}">-</button>
-                <input type="number" class="quantity-input" value="{quantity}" min="{quantity_min}" step="{quantity_step}" data-price="{price}" {quantity_readonly}>
+                <input type="number" class="quantity-input" value="{quantity}" min="{quantity_min}" step="{quantity_step}" data-price="{price}" inputmode="decimal" {quantity_readonly}>
                 <button type="button" class="quantity-btn increase-qty" style="{qty_btn_style}">+</button>
             </div>
             <span class="fw-bold">₱{total}</span>
@@ -620,6 +620,9 @@ class OrderManager {
             this.calculateChange();
         });
 
+        // Prevent non-numeric input in number fields
+        this.setupNumberFieldValidation();
+
         // Form submission
         document.getElementById('orderForm').addEventListener('submit', (e) => {
             e.preventDefault();
@@ -744,6 +747,89 @@ class OrderManager {
             results[nextIndex].classList.add('active');
             results[nextIndex].scrollIntoView({ block: 'nearest' });
         }
+    }
+
+    setupNumberFieldValidation() {
+        // Prevent non-numeric input in amount paid field
+        const amountPaidInput = document.querySelector('input[name="amount_paid"]');
+        if (amountPaidInput) {
+            amountPaidInput.addEventListener('keydown', (e) => {
+                this.validateNumberInput(e, true);
+            });
+            amountPaidInput.addEventListener('paste', (e) => {
+                this.validatePastedNumber(e);
+            });
+        }
+
+        // Prevent non-numeric input in customer phone field
+        const customerPhoneInput = document.getElementById('customerPhone');
+        if (customerPhoneInput) {
+            customerPhoneInput.addEventListener('keydown', (e) => {
+                this.validateNumberInput(e, false);
+            });
+            customerPhoneInput.addEventListener('paste', (e) => {
+                this.validatePastedNumber(e);
+            });
+        }
+
+        // Prevent non-numeric input in quantity inputs (delegated event)
+        document.getElementById('cartItems').addEventListener('keydown', (e) => {
+            if (e.target.classList.contains('quantity-input')) {
+                this.validateNumberInput(e, true);
+            }
+        });
+
+        document.getElementById('cartItems').addEventListener('paste', (e) => {
+            if (e.target.classList.contains('quantity-input')) {
+                this.validatePastedNumber(e);
+            }
+        });
+    }
+
+    validateNumberInput(e, allowDecimal = true) {
+        // Allow: backspace, delete, tab, escape, enter
+        if ([8, 9, 27, 13, 46].indexOf(e.keyCode) !== -1 ||
+            // Allow: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+            (e.keyCode === 65 && e.ctrlKey === true) ||
+            (e.keyCode === 67 && e.ctrlKey === true) ||
+            (e.keyCode === 86 && e.ctrlKey === true) ||
+            (e.keyCode === 88 && e.ctrlKey === true) ||
+            // Allow: home, end, left, right
+            (e.keyCode >= 35 && e.keyCode <= 39)) {
+            return;
+        }
+
+        // Allow decimal point if enabled and not already present
+        if (allowDecimal && e.key === '.' && !e.target.value.includes('.')) {
+            return;
+        }
+
+        // Prevent if not a number (0-9)
+        if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+            e.preventDefault();
+        }
+    }
+
+    validatePastedNumber(e) {
+        e.preventDefault();
+        const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+        const numericValue = pastedText.replace(/[^0-9.]/g, '');
+        
+        // Only allow one decimal point
+        const parts = numericValue.split('.');
+        const cleanedValue = parts.length > 2 ? parts[0] + '.' + parts.slice(1).join('') : numericValue;
+        
+        // Insert the cleaned value
+        const input = e.target;
+        const start = input.selectionStart;
+        const end = input.selectionEnd;
+        const currentValue = input.value;
+        
+        input.value = currentValue.substring(0, start) + cleanedValue + currentValue.substring(end);
+        input.setSelectionRange(start + cleanedValue.length, start + cleanedValue.length);
+        
+        // Trigger input event to update calculations
+        input.dispatchEvent(new Event('input', { bubbles: true }));
     }
 
     showCustomerSearchLoading() {
