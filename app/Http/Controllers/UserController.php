@@ -271,6 +271,37 @@ class UserController extends Controller
             ->with('success', 'User permanently deleted.');
     }
 
+    public function toggle2FA(User $user)
+    {
+        if (auth()->user()->role !== 'super-admin') {
+            return redirect()->route('users.index')
+                ->with('error', 'Only Super Admins can toggle 2FA for users.');
+        }
+
+        if ($user->two_factor_enabled) {
+            $user->disableTwoFactor();
+            $action = 'disabled';
+        } else {
+            $user->enableTwoFactor();
+            $action = 'enabled';
+        }
+
+        AuditLog::create([
+            'action'      => 'updated',
+            'model_type'  => User::class,
+            'model_id'    => $user->id,
+            'description' => "2FA was {$action} for user {$user->name} by " . auth()->user()->name,
+            'ip_address'  => request()->ip(),
+            'user_agent'  => request()->userAgent(),
+            'url'         => request()->url(),
+            'method'      => request()->method(),
+            'user_id'     => auth()->id(),
+        ]);
+
+        return redirect()->route('users.index')
+            ->with('success', "Two-Factor Authentication {$action} for {$user->name}.");
+    }
+
     public function profile()
     {
         $user = auth()->user();

@@ -59,6 +59,7 @@
                         <th>Email</th>
                         <th>Role</th>
                         <th>Status</th>
+                        <th>2FA</th>
                         <th>Last Login</th>
                         <th>Actions</th>
                     </tr>
@@ -94,8 +95,15 @@
                             @endif
                         </td>
                         <td>
-                            @php
-                                $lastLogin = $user->auditLogs()
+                            @if($user->trashed())
+                                <span class="badge bg-secondary">N/A</span>
+                            @elseif($user->two_factor_enabled)
+                                <span class="badge bg-success"><i class="fas fa-shield-alt me-1"></i>Enabled</span>
+                            @else
+                                <span class="badge bg-secondary"><i class="fas fa-shield-alt me-1"></i>Disabled</span>
+                            @endif
+                        </td>
+                        <td>
                                     ->where('action', 'login')
                                     ->latest()
                                     ->first();
@@ -128,6 +136,17 @@
                                        class="btn btn-edit btn-sm me-1">
                                         <i class="fas fa-edit me-1"></i>Edit
                                     </a>
+                                    @if(auth()->user()->role === 'super-admin')
+                                        <form action="{{ route('users.toggle-2fa', $user->id) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            <button type="submit"
+                                                class="btn btn-sm me-1 {{ $user->two_factor_enabled ? 'btn-warning' : 'btn-outline-success' }}"
+                                                title="{{ $user->two_factor_enabled ? 'Disable 2FA' : 'Enable 2FA' }}"
+                                                onclick="return confirm('{{ $user->two_factor_enabled ? 'Disable' : 'Enable' }} 2FA for {{ addslashes($user->name) }}?')">
+                                                <i class="fas fa-shield-alt me-1"></i>{{ $user->two_factor_enabled ? 'Disable 2FA' : 'Enable 2FA' }}
+                                            </button>
+                                        </form>
+                                    @endif
                                     @if($user->id !== auth()->id())
                                         <form action="{{ route('users.destroy', $user->id) }}" method="POST" 
                                               class="d-inline" onsubmit="return confirm('Archive this user?')">
