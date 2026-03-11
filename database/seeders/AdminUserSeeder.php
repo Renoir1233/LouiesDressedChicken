@@ -26,6 +26,17 @@ class AdminUserSeeder extends Seeder
             ]);
         }
 
+        if (!User::where('email', 'kakumeiigun@gmail.com')->exists()) {
+            User::create([
+                'name' => 'Super Admin 2',
+                'email' => 'kakumeiigun@gmail.com',
+                'password' => Hash::make('Admin123!'),
+                'role' => 'super-admin',
+                'is_active' => true,
+                'email_verified_at' => now(),
+            ]);
+        }
+
         // Create additional test users
         $users = [
             [
