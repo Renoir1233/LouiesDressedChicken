@@ -38,11 +38,10 @@ class TwoFactorCodeMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.two-factor-code',
-            with: [
+            htmlString: view('emails.two-factor-code', [
                 'user' => $this->user,
                 'code' => $this->code,
-            ],
+            ])->render(),
         );
     }
 
