@@ -271,41 +271,39 @@ class UserController extends Controller
             ->with('success', 'User permanently deleted.');
     }
 
-    public function toggle2FA(User $user)
+    public function profile()
     {
-        if (auth()->user()->role !== 'super-admin') {
-            return redirect()->route('users.index')
-                ->with('error', 'Only Super Admins can toggle 2FA for users.');
-        }
+        $user = auth()->user();
+        return view('users.profile', compact('user'));
+    }
+
+    public function profileToggle2FA(Request $request)
+    {
+        $user = auth()->user();
 
         if ($user->two_factor_enabled) {
             $user->disableTwoFactor();
             $action = 'disabled';
+            $message = '2FA has been disabled for your account.';
         } else {
             $user->enableTwoFactor();
             $action = 'enabled';
+            $message = '2FA has been enabled. You will receive a code by email on your next login from a new device.';
         }
 
         AuditLog::create([
             'action'      => 'updated',
             'model_type'  => User::class,
             'model_id'    => $user->id,
-            'description' => "2FA was {$action} for user {$user->name} by " . auth()->user()->name,
-            'ip_address'  => request()->ip(),
-            'user_agent'  => request()->userAgent(),
-            'url'         => request()->url(),
-            'method'      => request()->method(),
-            'user_id'     => auth()->id(),
+            'description' => "User {$user->name} {$action} 2FA on their profile",
+            'ip_address'  => $request->ip(),
+            'user_agent'  => $request->userAgent(),
+            'url'         => $request->url(),
+            'method'      => $request->method(),
+            'user_id'     => $user->id,
         ]);
 
-        return redirect()->route('users.index')
-            ->with('success', "Two-Factor Authentication {$action} for {$user->name}.");
-    }
-
-    public function profile()
-    {
-        $user = auth()->user();
-        return view('users.profile', compact('user'));
+        return redirect()->route('profile')->with('success', $message);
     }
 
     public function updateProfile(Request $request)

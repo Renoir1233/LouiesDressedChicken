@@ -43,13 +43,13 @@ Route::middleware(['auth'])->group(function () {
     // Profile Routes
     Route::get('/profile', [UserController::class, 'profile'])->name('profile');
     Route::post('/profile', [UserController::class, 'updateProfile']);
+    Route::post('/profile/toggle-2fa', [UserController::class, 'profileToggle2FA'])->name('profile.toggle-2fa');
     
     // User Management Routes (Admin only)
     Route::middleware('permission:users.*')->group(function () {
         Route::resource('users', UserController::class);
         Route::post('users/{id}/restore', [UserController::class, 'restore'])->name('users.restore');
         Route::delete('users/{id}/force-delete', [UserController::class, 'forceDelete'])->name('users.force-delete');
-        Route::post('users/{user}/toggle-2fa', [UserController::class, 'toggle2FA'])->name('users.toggle-2fa');
     });
     
     // Role Management Routes (Super Admin only)
