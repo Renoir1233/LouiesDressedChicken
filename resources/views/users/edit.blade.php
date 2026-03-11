@@ -112,10 +112,23 @@
                         <div class="col-md-6">
                             <label class="form-label">New Password</label>
                             <input type="password" class="form-control @error('password') is-invalid @enderror" 
-                                   name="password" placeholder="Enter new password">
+                                   id="editPasswordInput" name="password" placeholder="Enter new password">
                             @error('password')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
+                            <!-- Password strength indicator -->
+                            <div id="editPasswordStrength" class="mt-2" style="display:none;">
+                                <div class="progress" style="height:6px;">
+                                    <div id="editStrengthBar" class="progress-bar" role="progressbar" style="width:0%"></div>
+                                </div>
+                                <ul class="list-unstyled small mt-2 mb-0" id="editPasswordChecks">
+                                    <li id="edit-check-length"><i class="fas fa-times-circle text-danger me-1"></i>At least 8 characters</li>
+                                    <li id="edit-check-upper"><i class="fas fa-times-circle text-danger me-1"></i>At least 1 uppercase letter</li>
+                                    <li id="edit-check-lower"><i class="fas fa-times-circle text-danger me-1"></i>At least 1 lowercase letter</li>
+                                    <li id="edit-check-number"><i class="fas fa-times-circle text-danger me-1"></i>At least 1 number</li>
+                                    <li id="edit-check-special"><i class="fas fa-times-circle text-danger me-1"></i>At least 1 special character</li>
+                                </ul>
+                            </div>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Confirm Password</label>
@@ -185,5 +198,37 @@
     // No JavaScript needed - the hidden input with value="0" ensures is_active is always sent
     // When checkbox is unchecked, the hidden input value (0) is sent
     // When checkbox is checked, the checkbox value (1) overrides the hidden input
+
+    // Password strength checker
+    const editPasswordInput = document.getElementById('editPasswordInput');
+    const editStrengthDiv = document.getElementById('editPasswordStrength');
+    const editStrengthBar = document.getElementById('editStrengthBar');
+
+    const editChecks = {
+        length:  { el: document.getElementById('edit-check-length'),  test: v => v.length >= 8 },
+        upper:   { el: document.getElementById('edit-check-upper'),   test: v => /[A-Z]/.test(v) },
+        lower:   { el: document.getElementById('edit-check-lower'),   test: v => /[a-z]/.test(v) },
+        number:  { el: document.getElementById('edit-check-number'),  test: v => /[0-9]/.test(v) },
+        special: { el: document.getElementById('edit-check-special'), test: v => /[^A-Za-z0-9]/.test(v) },
+    };
+
+    editPasswordInput.addEventListener('input', function () {
+        const val = this.value;
+        editStrengthDiv.style.display = val.length > 0 ? 'block' : 'none';
+
+        let passed = 0;
+        for (const key in editChecks) {
+            const ok = editChecks[key].test(val);
+            if (ok) passed++;
+            editChecks[key].el.innerHTML = ok
+                ? `<i class="fas fa-check-circle text-success me-1"></i>${editChecks[key].el.textContent.trim()}`
+                : `<i class="fas fa-times-circle text-danger me-1"></i>${editChecks[key].el.textContent.trim()}`;
+        }
+
+        const pct = (passed / 5) * 100;
+        const colors = ['#dc3545', '#fd7e14', '#ffc107', '#20c997', '#28a745'];
+        editStrengthBar.style.width = pct + '%';
+        editStrengthBar.style.backgroundColor = colors[passed - 1] || '#dc3545';
+    });
 </script>
 @endsection

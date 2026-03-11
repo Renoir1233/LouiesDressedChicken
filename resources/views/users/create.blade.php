@@ -40,10 +40,23 @@
                         <div class="col-md-6">
                             <label class="form-label">Password <span class="text-danger">*</span></label>
                             <input type="password" class="form-control @error('password') is-invalid @enderror" 
-                                   name="password" required placeholder="Enter password">
+                                   id="passwordInput" name="password" required placeholder="Enter password">
                             @error('password')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
+                            <!-- Password strength indicator -->
+                            <div id="passwordStrength" class="mt-2" style="display:none;">
+                                <div class="progress" style="height:6px;">
+                                    <div id="strengthBar" class="progress-bar" role="progressbar" style="width:0%"></div>
+                                </div>
+                                <ul class="list-unstyled small mt-2 mb-0" id="passwordChecks">
+                                    <li id="check-length"><i class="fas fa-times-circle text-danger me-1"></i>At least 8 characters</li>
+                                    <li id="check-upper"><i class="fas fa-times-circle text-danger me-1"></i>At least 1 uppercase letter</li>
+                                    <li id="check-lower"><i class="fas fa-times-circle text-danger me-1"></i>At least 1 lowercase letter</li>
+                                    <li id="check-number"><i class="fas fa-times-circle text-danger me-1"></i>At least 1 number</li>
+                                    <li id="check-special"><i class="fas fa-times-circle text-danger me-1"></i>At least 1 special character</li>
+                                </ul>
+                            </div>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Confirm Password <span class="text-danger">*</span></label>
@@ -118,7 +131,7 @@
 
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle me-2"></i>
-                        <strong>Password Requirements:</strong> Minimum 8 characters with at least one uppercase letter, one lowercase letter, and one number.
+                        <strong>Password Requirements:</strong> Minimum 8 characters with at least one uppercase letter, one lowercase letter, one number, and one special character (e.g. !@#$%).
                     </div>
                 </div>
             </div>
@@ -177,6 +190,38 @@
             document.getElementById('avatarPreview').style.backgroundImage = `url(${e.target.result})`;
         }
         reader.readAsDataURL(e.target.files[0]);
+    });
+
+    // Password strength checker
+    const passwordInput = document.getElementById('passwordInput');
+    const strengthDiv = document.getElementById('passwordStrength');
+    const strengthBar = document.getElementById('strengthBar');
+
+    const checks = {
+        length:  { el: document.getElementById('check-length'),  test: v => v.length >= 8 },
+        upper:   { el: document.getElementById('check-upper'),   test: v => /[A-Z]/.test(v) },
+        lower:   { el: document.getElementById('check-lower'),   test: v => /[a-z]/.test(v) },
+        number:  { el: document.getElementById('check-number'),  test: v => /[0-9]/.test(v) },
+        special: { el: document.getElementById('check-special'), test: v => /[^A-Za-z0-9]/.test(v) },
+    };
+
+    passwordInput.addEventListener('input', function () {
+        const val = this.value;
+        strengthDiv.style.display = val.length > 0 ? 'block' : 'none';
+
+        let passed = 0;
+        for (const key in checks) {
+            const ok = checks[key].test(val);
+            if (ok) passed++;
+            checks[key].el.innerHTML = ok
+                ? `<i class="fas fa-check-circle text-success me-1"></i>${checks[key].el.textContent.trim()}`
+                : `<i class="fas fa-times-circle text-danger me-1"></i>${checks[key].el.textContent.trim()}`;
+        }
+
+        const pct = (passed / 5) * 100;
+        const colors = ['#dc3545', '#fd7e14', '#ffc107', '#20c997', '#28a745'];
+        strengthBar.style.width = pct + '%';
+        strengthBar.style.backgroundColor = colors[passed - 1] || '#dc3545';
     });
 </script>
 @endsection

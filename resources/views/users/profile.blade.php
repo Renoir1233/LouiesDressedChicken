@@ -151,10 +151,23 @@
                                 <div class="col-md-4 mb-3">
                                     <label class="form-label">New Password</label>
                                     <input type="password" class="form-control @error('password') is-invalid @enderror" 
-                                           name="password" placeholder="Enter new password">
+                                           id="profilePasswordInput" name="password" placeholder="Enter new password">
                                     @error('password')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
+                                    <!-- Password strength indicator -->
+                                    <div id="profilePasswordStrength" class="mt-2" style="display:none;">
+                                        <div class="progress" style="height:6px;">
+                                            <div id="profileStrengthBar" class="progress-bar" role="progressbar" style="width:0%"></div>
+                                        </div>
+                                        <ul class="list-unstyled small mt-2 mb-0">
+                                            <li id="prof-check-length"><i class="fas fa-times-circle text-danger me-1"></i>At least 8 characters</li>
+                                            <li id="prof-check-upper"><i class="fas fa-times-circle text-danger me-1"></i>At least 1 uppercase letter</li>
+                                            <li id="prof-check-lower"><i class="fas fa-times-circle text-danger me-1"></i>At least 1 lowercase letter</li>
+                                            <li id="prof-check-number"><i class="fas fa-times-circle text-danger me-1"></i>At least 1 number</li>
+                                            <li id="prof-check-special"><i class="fas fa-times-circle text-danger me-1"></i>At least 1 special character</li>
+                                        </ul>
+                                    </div>
                                 </div>
                                 <div class="col-md-4 mb-3">
                                     <label class="form-label">Confirm Password</label>
@@ -289,6 +302,38 @@
             document.getElementById('avatarPreview').style.backgroundImage = `url(${e.target.result})`;
         }
         reader.readAsDataURL(e.target.files[0]);
+    });
+
+    // Password strength checker
+    const profPasswordInput = document.getElementById('profilePasswordInput');
+    const profStrengthDiv = document.getElementById('profilePasswordStrength');
+    const profStrengthBar = document.getElementById('profileStrengthBar');
+
+    const profChecks = {
+        length:  { el: document.getElementById('prof-check-length'),  test: v => v.length >= 8 },
+        upper:   { el: document.getElementById('prof-check-upper'),   test: v => /[A-Z]/.test(v) },
+        lower:   { el: document.getElementById('prof-check-lower'),   test: v => /[a-z]/.test(v) },
+        number:  { el: document.getElementById('prof-check-number'),  test: v => /[0-9]/.test(v) },
+        special: { el: document.getElementById('prof-check-special'), test: v => /[^A-Za-z0-9]/.test(v) },
+    };
+
+    profPasswordInput.addEventListener('input', function () {
+        const val = this.value;
+        profStrengthDiv.style.display = val.length > 0 ? 'block' : 'none';
+
+        let passed = 0;
+        for (const key in profChecks) {
+            const ok = profChecks[key].test(val);
+            if (ok) passed++;
+            profChecks[key].el.innerHTML = ok
+                ? `<i class="fas fa-check-circle text-success me-1"></i>${profChecks[key].el.textContent.trim()}`
+                : `<i class="fas fa-times-circle text-danger me-1"></i>${profChecks[key].el.textContent.trim()}`;
+        }
+
+        const pct = (passed / 5) * 100;
+        const colors = ['#dc3545', '#fd7e14', '#ffc107', '#20c997', '#28a745'];
+        profStrengthBar.style.width = pct + '%';
+        profStrengthBar.style.backgroundColor = colors[passed - 1] || '#dc3545';
     });
 </script>
 @endsection

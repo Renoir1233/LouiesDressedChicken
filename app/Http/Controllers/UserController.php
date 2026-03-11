@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 
 class UserController extends Controller
 {
@@ -52,7 +53,7 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8|confirmed',
+            'password' => ['required', Password::min(8)->mixedCase()->symbols()->numbers(), 'confirmed'],
             'role' => 'required|string|exists:roles,slug',
             'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'is_active' => 'sometimes|boolean'
@@ -111,7 +112,7 @@ class UserController extends Controller
                 'email',
                 Rule::unique('users')->ignore($user->id),
             ],
-            'password' => 'nullable|string|min:8|confirmed',
+            'password' => ['nullable', Password::min(8)->mixedCase()->symbols()->numbers(), 'confirmed'],
             'role' => 'required|string|exists:roles,slug',
             'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'is_active' => 'sometimes|boolean'
@@ -288,7 +289,7 @@ class UserController extends Controller
                 Rule::unique('users')->ignore($user->id),
             ],
             'current_password' => 'required_with:password|current_password',
-            'password' => 'nullable|string|min:8|confirmed',
+            'password' => ['nullable', Password::min(8)->mixedCase()->symbols()->numbers(), 'confirmed'],
             'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
