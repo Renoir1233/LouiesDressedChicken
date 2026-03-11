@@ -13,7 +13,7 @@ This code will expire in 15 minutes.
 
 If you did not attempt to log in, please ignore this email and change your password immediately.
 
-@component('mail::button', ['url' => config('app.url') . '/auth/verify-2fa', 'color' => 'primary'])
+@component('mail::button', ['url' => route('verify.2fa.show'), 'color' => 'primary'])
 Enter Verification Code
 @endcomponent
 

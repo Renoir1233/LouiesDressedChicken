@@ -68,6 +68,7 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'permission' => \App\Http\Middleware\CheckPermission::class,
         'audit.log' => \App\Http\Middleware\AuditLogMiddleware::class,
-        '2fa.pending' => \App\Http\Middleware\TwoFactorAuthPending::class,
+        '2fa.pending'   => \App\Http\Middleware\TwoFactorAuthPending::class,
+        '2fa.verified'  => \App\Http\Middleware\EnsureTwoFactorVerified::class,
     ];
 }

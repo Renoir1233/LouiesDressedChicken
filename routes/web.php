@@ -35,7 +35,7 @@ Route::get('/', function () {
 });
 
 // Protected Routes (Require Authentication)
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', '2fa.verified'])->group(function () {
     
     // Dashboard Routes
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -43,7 +43,6 @@ Route::middleware(['auth'])->group(function () {
     // Profile Routes
     Route::get('/profile', [UserController::class, 'profile'])->name('profile');
     Route::post('/profile', [UserController::class, 'updateProfile']);
-    Route::post('/profile/toggle-2fa', [UserController::class, 'profileToggle2FA'])->name('profile.toggle-2fa');
     
     // User Management Routes (Admin only)
     Route::middleware('permission:users.*')->group(function () {

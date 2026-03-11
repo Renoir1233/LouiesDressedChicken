@@ -42,8 +42,8 @@ class AuthenticatedSessionController extends Controller
 
         $isTrustedDevice = $user->isTrustedDevice($deviceFingerprint);
 
-        // If device is not trusted and 2FA is enabled, require 2FA verification
-        if (!$isTrustedDevice && $user->two_factor_enabled) {
+        // Always require 2FA verification for untrusted devices
+        if (!$isTrustedDevice) {
             // Generate 2FA code
             $code = $user->generateTwoFactorCode();
 
