@@ -242,6 +242,19 @@ body:before{
                     >
                     <i class="fa fa-eye eye" id="togglePassword" onclick="togglePassword('password', 'togglePassword')"></i>
                 </div>
+                <!-- Password strength indicator -->
+                <div id="passwordStrength" style="display:none; margin-top:-14px; margin-bottom:18px;">
+                    <div style="height:6px; background:#e9ecef; border-radius:3px; overflow:hidden;">
+                        <div id="strengthBar" style="height:100%; width:0%; transition:width .3s, background-color .3s; border-radius:3px;"></div>
+                    </div>
+                    <ul style="list-style:none; padding:0; margin:8px 0 0; font-size:12px;">
+                        <li id="check-length"><i class="fas fa-times-circle" style="color:#dc3545"></i> At least 8 characters</li>
+                        <li id="check-upper"><i class="fas fa-times-circle" style="color:#dc3545"></i> At least 1 uppercase letter</li>
+                        <li id="check-lower"><i class="fas fa-times-circle" style="color:#dc3545"></i> At least 1 lowercase letter</li>
+                        <li id="check-number"><i class="fas fa-times-circle" style="color:#dc3545"></i> At least 1 number</li>
+                        <li id="check-special"><i class="fas fa-times-circle" style="color:#dc3545"></i> At least 1 special character</li>
+                    </ul>
+                </div>
 
                 <!-- Confirm Password -->
                 <label>Confirm Password</label>
@@ -286,6 +299,38 @@ function togglePassword(fieldId, iconId){
         icon.classList.add("fa-eye");
     }
 }
+
+// Password strength checker
+const pwInput = document.getElementById('password');
+const strengthDiv = document.getElementById('passwordStrength');
+const strengthBar = document.getElementById('strengthBar');
+
+const checks = {
+    length:  { el: document.getElementById('check-length'),  test: v => v.length >= 8 },
+    upper:   { el: document.getElementById('check-upper'),   test: v => /[A-Z]/.test(v) },
+    lower:   { el: document.getElementById('check-lower'),   test: v => /[a-z]/.test(v) },
+    number:  { el: document.getElementById('check-number'),  test: v => /[0-9]/.test(v) },
+    special: { el: document.getElementById('check-special'), test: v => /[^A-Za-z0-9]/.test(v) },
+};
+
+pwInput.addEventListener('input', function () {
+    const val = this.value;
+    strengthDiv.style.display = val.length > 0 ? 'block' : 'none';
+
+    let passed = 0;
+    for (const key in checks) {
+        const ok = checks[key].test(val);
+        if (ok) passed++;
+        const icon = checks[key].el.querySelector('i');
+        icon.className = ok ? 'fas fa-check-circle' : 'fas fa-times-circle';
+        icon.style.color = ok ? '#28a745' : '#dc3545';
+    }
+
+    const pct = (passed / 5) * 100;
+    const colors = ['#dc3545', '#fd7e14', '#ffc107', '#20c997', '#28a745'];
+    strengthBar.style.width = pct + '%';
+    strengthBar.style.backgroundColor = colors[passed - 1] || '#dc3545';
+});
 </script>
 
 </body>
