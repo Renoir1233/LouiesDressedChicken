@@ -227,7 +227,7 @@ body:before{
 
                     <label>Email</label>
                     <div class="input-box">
-                        <input type="email" name="email" required>
+                        <input type="email" name="email" value="{{ old('email') }}" required>
                     </div>
 
                     <label>Password</label>
